@@ -72,7 +72,7 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         ExposedDropdownMenuBox(
-            expanded = true,
+            expanded = false,
             onExpandedChange = {}
         ) {
         }
