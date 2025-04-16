@@ -5,17 +5,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -71,10 +76,64 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
+        // List of dice options
+        val diceOptions = listOf("d4", "d6", "d8", "d10", "d12", "d20")
+
+        // State for whether the dropdown menu is expanded or not
+        var expanded by remember { mutableStateOf(false) }
+
+        // State for the currently selected dice option
+        // Initialize with the first option or leave empty for a placeholder
+        var selectedOptionText by remember { mutableStateOf(diceOptions[0]) }
+        // Alternatively, for a placeholder initially:
+        // var selectedOptionText by remember { mutableStateOf("") }
+
+
+        // We use ExposedDropdownMenuBox which behaves like a MenuButton dropdown
+        // It contains a TextField composable where the selected item is shown
+        // and the DropdownMenu below the TextField.
         ExposedDropdownMenuBox(
-            expanded = false,
-            onExpandedChange = {}
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
         ) {
+            // --- Text Field (the visible part when collapsed) ---
+            OutlinedTextField(
+                readOnly = true, // Make the text field read-only
+                value = selectedOptionText,
+                onValueChange = {}, // No-op for readOnly
+                label = { Text("Select Dice") },
+                trailingIcon = {
+                    // Icon indicates expanded state
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    // Customize colors if needed, e.g., transparent background
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface
+                ),
+            )
+
+            // --- Dropdown Menu (the list that appears) ---
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }, // Close when clicked outside
+            ) {
+                // Add each dice option as a menu item
+                diceOptions.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = { Text(selectionOption) },
+                        onClick = {
+                            selectedOptionText = selectionOption // Update selected text
+                            expanded = false // Close the menu
+                            // --- Optional: Add logic here for when a dice is selected ---
+                            println("Selected dice: $selectionOption")
+                            // Example: you might call a function like onDiceSelected(selectionOption)
+                            // ------------------------------------------------------------
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    )
+                }
+            }
         }
         Image(
             painter = painterResource(imageResource),
