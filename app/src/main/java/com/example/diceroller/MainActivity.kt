@@ -5,13 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -19,8 +18,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -34,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.example.diceroller.ui.theme.DiceRollerTheme
 
 class MainActivity : ComponentActivity() {
@@ -78,22 +74,21 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         DiceDropDownMenu(modifier)
-//        Spacer(modifier = Modifier.height(32.dp))
-//        Image(
-//            painter = painterResource(imageResource),
-//            contentDescription = result.toString()
-//        )
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Button(onClick = {result = (1..6).random()}) {
-//            Text(stringResource(R.string.roll))
-//        }
+        Spacer(modifier = Modifier.height(32.dp))
+        Image(
+            painter = painterResource(imageResource),
+            contentDescription = result.toString()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {result = (1..6).random()}) {
+            Text(stringResource(R.string.roll))
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiceDropDownMenu(modifier: Modifier){
-    modifier.zIndex(1f)
     // List of dice options
     val diceOptions = listOf("d4", "d6", "d8", "d10", "d12", "d20")
 
@@ -101,56 +96,41 @@ fun DiceDropDownMenu(modifier: Modifier){
     var expanded by remember { mutableStateOf(false) }
 
     // State for the currently selected dice option
-    // Initialize with the first option or leave empty for a placeholder
-    var selectedOptionText by remember { mutableStateOf(diceOptions[0]) }
-    // Alternatively, for a placeholder initially:
-    // var selectedOptionText by remember { mutableStateOf("") }
+     var selectedOptionText by remember { mutableStateOf("") }
 
-
-    // We use ExposedDropdownMenuBox which behaves like a MenuButton dropdown
-    // It contains a TextField composable where the selected item is shown
-    // and the DropdownMenu below the TextField.
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded
-            println("Dropdown expanded state changed to: $expanded")}
-    ) {
-        // --- Text Field (the visible part when collapsed) ---
-        OutlinedTextField(
-            readOnly = true, // Make the text field read-only
-            value = selectedOptionText,
-            onValueChange = {}, // No-op for readOnly
-            label = { Text("Select Dice") },
-            trailingIcon = {
-                // Icon indicates expanded state
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(
-                // Customize colors if needed, e.g., transparent background
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                focusedContainerColor = MaterialTheme.colorScheme.surface
-            ),
-        )
-
-        // --- Dropdown Menu (the list that appears) ---
-        ExposedDropdownMenu(
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        ExposedDropdownMenuBox(
             expanded = expanded,
-            onDismissRequest = { expanded = false }, // Close when clicked outside
+            onExpandedChange = { expanded = !expanded }
         ) {
-            // Add each dice option as a menu item
-            diceOptions.forEach { selectionOption ->
-                DropdownMenuItem(
-                    text = { Text(selectionOption) },
-                    onClick = {
-//                        selectedOptionText = selectionOption // Update selected text
-//                        expanded = false // Close the menu
-//                        // --- Optional: Add logic here for when a dice is selected ---
-//                        println("Selected dice: $selectionOption")
-//                        // Example: you might call a function like onDiceSelected(selectionOption)
-//                        // ------------------------------------------------------------
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                )
+            TextField(
+                modifier = Modifier.menuAnchor(),
+                value = selectedOptionText,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)},
+                label = {Text("Select Dice")}
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = {expanded = false}
+            ) {
+                diceOptions.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = { Text(selectionOption) },
+                        onClick = {
+                            selectedOptionText = selectionOption
+                            expanded = false
+                            println("Selected dice: $selectionOption")
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
             }
         }
     }
