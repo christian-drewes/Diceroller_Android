@@ -21,21 +21,25 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.diceroller.ui.theme.DiceRollerTheme
+import com.example.diceroller.DropDownSpawn
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,15 +66,15 @@ fun DiceRollerApp() {
 
 @Composable
 fun PlusButton(
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     icon: ImageVector = Icons.Filled.Add,
     contentDescription: String? = "Add" // Provide a meaningful description
 ) {
+    var addDropDown by remember { mutableStateOf(false) }
+    val dds = DropDownSpawn()
     Button(
-        onClick = onClick,
-        modifier = modifier,
+        onClick = { addDropDown = true },
         enabled = enabled
     ) {
         Icon(
@@ -80,12 +84,16 @@ fun PlusButton(
             // modifier = Modifier.size(ButtonDefaults.IconSize) // Default size
         )
     }
+    if (addDropDown) {
+        DiceDropDownMenu(Modifier)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
     var result by remember { mutableStateOf(1) }
+//    var dropsandbutts by remember { mutableStateOf<@Composable ()-> Unit>(DiceDropDownMenu()) }
     val imageResource = when (result) {
         1 -> R.drawable.dice_1
         2 -> R.drawable.dice_2
@@ -94,17 +102,16 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
         5 -> R.drawable.dice_5
         else -> R.drawable.dice_6
     }
+
     Column (
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         DiceDropDownMenu(modifier)
         PlusButton(
-            onClick = {},
-            modifier = modifier,
-            
+            modifier = modifier
         )
-        Spacer(modifier = Modifier.height(32.dp))
+//        Spacer(modifier = Modifier.height(10.dp))
         Image(
             painter = painterResource(imageResource),
             contentDescription = result.toString()
